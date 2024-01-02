@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <title>hi-wasm example</title>
+  </head>
+  <body>
+    <button id="setupcircuit">Setup Circuit</button>
+    <button id="testcircuit">Test Circuit</button>
+    <button id="generatekeys">Generate Keys</button>
+    <button id="generateproof">Generate Proof</button>
+
+    <input type="file" id="file-input" />
+    <pre id="file-content"></pre>
+
+    <script src="https://unpkg.com/wasm-feature-detect/dist/umd/index.js"></script>
+    <script type='module'>
+      import init, { initPanicHook, initThreadPool, VMCircuitWasm} from "./pkg/zkmove_wasm.js";
+
+      async function prepare() {
+        await init();
+
+        if (await wasmFeatureDetect.threads()) {
+          console.log("multi threads enabled");
+        } else {
+          console.log("multi threads disabled");
+        }
+
+        if (crossOriginIsolated) {
+          console.log("crossOriginIsolated enabled");
+        } else {
+          console.log("crossOriginIsolated disabled");
+        }
+
+        // Thread pool initialization with the given number of threads
+        // (pass `navigator.hardwareConcurrency` if you want to use all cores).
+        // await initThreadPool(navigator.hardwareConcurrency);
+
+        initPanicHook();
+      }
+
+      async function setupcircuit() {
+        vmcircuit.setupCircuit();
+      }
+      async function testcircuit() {
+        vmcircuit.mock();
+      }
+      async function generatekeys() {
+        vmcircuit.genVk();
+        vmcircuit.genPk();
+      }
+      async function generateproof() {
+        vmcircuit.genProof();
+      }
+
+      async function readSingleFile(e) {
+        var file = e.target.files[0];
+        if (!file) {
+          return;
+        }
+        console.log("Hello! {}", file);
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          var contents = e.target.result;
+          displayContents(contents);
+        };
+        reader.readAsText(file);
+      }
+
+      async function displayContents(contents) {
+        var element = document.getElementById('file-content');
+        element.textContent = contents;
+      }
+      
+      // system config before anything else.
+      await prepare();
+      const vmcircuit = new VMCircuitWasm();
+
+      document.getElementById("setupcircuit").addEventListener("click", setupcircuit);
+      document.getElementById("testcircuit").addEventListener("click", testcircuit);
+      document.getElementById("generatekeys").addEventListener("click", generatekeys);
+      document.getElementById("generateproof").addEventListener("click", generateproof);
+      document.getElementById('file-input').addEventListener("change", readSingleFile, false);
+
+    </script>
+  </body>
+</html>
