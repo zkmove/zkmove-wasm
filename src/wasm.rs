@@ -191,7 +191,8 @@ impl VMCircuitWasm {
     pub fn mock(&self) -> Result<(), JsValue> {
         log!("Test circuit start");
         let circuit = self.circuit.clone().expect("circuit is none");
-        let k = find_best_k(&circuit);
+        let params = self.params.as_ref().expect("params is none");
+        let k = params.k();
 
         let prover = MockProver::<Fr>::run(k, &circuit, vec![vec![Fr::zero()]])
             .map_err(|e| {
