@@ -35,6 +35,7 @@ use move_binary_format::file_format::empty_script;
 use move_binary_format::file_format::Bytecode as MoveBytecode;
 use movelang::compiler::compile_source_files;
 use rand::{rngs::StdRng, SeedableRng};
+use std::marker::PhantomData;
 use vm::runtime::Runtime;
 use vm::state::StateStore;
 use vm_circuit::circuit::VmCircuit;
@@ -82,7 +83,7 @@ impl Default for VMWasm {
             MoveBytecode::Pop,
             MoveBytecode::Ret,
         ];
-        let runtime = Runtime::<Fr>::new();
+        let runtime = Runtime::new();
         let mut data_store = StateStore::new();
         let circuit_config = CircuitConfig::default()
             .stack_ops_num(Some(20))
@@ -96,6 +97,7 @@ impl Default for VMWasm {
         let vm_circuit = VmCircuit {
             witness,
             public_input: None,
+            _maker: PhantomData,
         };
 
         log!("vm default done");
@@ -119,7 +121,7 @@ impl VMWasm {
         let (compiled_script, _compiled_modules) =
             compile_source_files(targets).expect("compile file failed");
         let script = compiled_script.expect("script is missing");
-        let runtime = Runtime::<Fr>::new();
+        let runtime = Runtime::new();
         let mut data_store = StateStore::new();
         let circuit_config = CircuitConfig::default()
             .stack_ops_num(Some(20))
@@ -133,6 +135,7 @@ impl VMWasm {
         let vm_circuit = VmCircuit {
             witness,
             public_input: None,
+            _maker: PhantomData,
         };
 
         log!("gen witness finished");

@@ -7,3 +7,4 @@ build-std = ["panic_abort", "std"]
 
 [build]
 target = "x86_64-apple-darwin"
+
